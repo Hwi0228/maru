@@ -1,0 +1,24 @@
+name: MARU kernel
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  cross-build:
+    name: Build ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: ${{ matrix.arch }}-unknown-none
+      - name: Build kernel
+        working-directory: kernel
+        run: cargo build --release --target ${{ matrix.arch }}-unknown-none

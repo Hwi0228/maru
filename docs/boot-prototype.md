@@ -11,8 +11,9 @@
 - Architecture-specific early console output:
   - x86_64: COM1 serial UART.
   - AArch64: PL011 UART on the QEMU `virt` platform, accessed through the Limine HHDM.
-- Limine base-revision and HHDM requests.
-- Architecture-specific linker scripts.
+- Architecture-specific Limine base revisions: revision 0 for the current x86_64 path and revision 6 for AArch64.
+- Limine HHDM request.
+- Architecture-specific linker scripts and static ELF output.
 - Cross-compilation CI for both target triples.
 - A basic Limine ISO build path.
 
@@ -45,12 +46,6 @@ make run KARCH=aarch64
 
 The AArch64 image is intended for QEMU's `virt` machine and its PL011 UART. Physical ARM hardware is not yet supported.
 
-## Temporary boot assumption
-
-The prototype requests Limine base revision 0 so the early AArch64 console can use the bootloader-provided identity map and HHDM mapping for the QEMU virt PL011 MMIO region. This is a bootstrap convenience, not MARU's intended final memory-map policy. A later milestone must establish explicit device-memory mappings and move to a newer base revision.
-
 ## Current limitations
 
 This is a boot-and-console prototype, not yet a functioning microkernel. It does not implement user mode, address-space management, scheduling, IPC, capabilities, a filesystem, or POSIX services. The AArch64 PL011 mapping and both runtime boot paths still require QEMU validation.
-
-CI currently verifies cross-compilation only. A successful build must not be interpreted as a successful boot test.

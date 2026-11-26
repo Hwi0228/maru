@@ -3,16 +3,21 @@ use limine::{
     request::{HhdmRequest, RequestsEndMarker, RequestsStartMarker},
 };
 
-// Base revision 0 temporarily retains the identity map and maps all memory-map
-// regions through the HHDM. This lets the first AArch64 prototype reach the
-// QEMU virt PL011 UART before MARU has its own MMIO mapper.
+// Limine's current AArch64 protocol requires base revision 6 or newer.
+// x86_64 retains revision 0 for the prototype's legacy identity-map setup.
 #[used]
 #[unsafe(link_section = ".requests_start_marker")]
 static REQUESTS_START: RequestsStartMarker = RequestsStartMarker::new();
 
+#[cfg(target_arch = "x86_64")]
 #[used]
 #[unsafe(link_section = ".requests")]
 static BASE_REVISION: BaseRevision = BaseRevision::with_revision(0);
+
+#[cfg(target_arch = "aarch64")]
+#[used]
+#[unsafe(link_section = ".requests")]
+static BASE_REVISION: BaseRevision = BaseRevision::with_revision(6);
 
 #[used]
 #[unsafe(link_section = ".requests")]

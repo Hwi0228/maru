@@ -3,7 +3,8 @@ set -euo pipefail
 
 architecture="${1:?usage: test-qemu-boot.sh <x86_64|aarch64>}"
 log_file="$(mktemp)"
-trap 'rm -f "$log_file"' EXIT
+clean_log_file="$(mktemp)"
+trap 'rm -f "$log_file" "$clean_log_file"' EXIT
 
 case "$architecture" in
   x86_64)
@@ -56,11 +57,14 @@ timeout --signal=TERM --kill-after=3s 25s "${qemu[@]}" >"$log_file" 2>&1
 qemu_status=$?
 set -e
 
-cat "$log_file"
+# UEFI firmware and Limine may emit ANSI cursor-control sequences on serial.
+# Remove those controls before checking the stable kernel log contract.
+sed -E 's/\x1B\[[0-9;?]*[ -/]*[@-~]//g' "$log_file" >"$clean_log_file"
+cat "$clean_log_file"
 
-grep -Fq "YEOUL OS / MARU Kernel" "$log_file"
-grep -Fq "Boot protocol: Limine" "$log_file"
-grep -Fq "$expected_arch" "$log_file"
-grep -Fq "Kernel initialization complete." "$log_file"
+grep -Fq "YEOUL OS / MARU Kernel" "$clean_log_file"
+grep -Fq "Boot protocol: Limine" "$clean_log_file"
+grep -Fq "$expected_arch" "$clean_log_file"
+grep -Fq "Kernel initialization complete." "$clean_log_file"
 
 echo "QEMU boot contract passed: $architecture (QEMU exit: $qemu_status)"

@@ -27,11 +27,8 @@ pub fn base_revision_supported() -> bool {
 }
 
 pub fn hhdm_offset() -> u64 {
-    // SAFETY: Limine owns the response memory for the duration of kernel execution.
-    unsafe {
-        HHDM_REQUEST
-            .get_response()
-            .expect("Limine did not provide the HHDM response")
-            .offset()
-    }
+    HHDM_REQUEST
+        .get_response()
+        .expect("Limine did not provide the HHDM response")
+        .offset()
 }

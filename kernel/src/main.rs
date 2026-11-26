@@ -14,11 +14,6 @@ unsafe extern "C" fn kmain() -> ! {
     arch::init(hhdm_offset);
 
     arch::write_str(hhdm_offset, "\r\n");
-    arch::write_str(hhdm_offset, "  __  __    _    ____  _   _\r\n");
-    arch::write_str(hhdm_offset, " |  \/  |  / \\  |  _ \\| | | |\r\n");
-    arch::write_str(hhdm_offset, " | |\\/| | / _ \\ | |_) | |_| |\r\n");
-    arch::write_str(hhdm_offset, " |_|  |_|/_/ \\_\\|____/ \\___/\r\n");
-    arch::write_str(hhdm_offset, "\r\n");
     arch::write_str(hhdm_offset, "YEOUL OS / MARU Kernel\r\n");
     arch::write_str(hhdm_offset, "Boot protocol: Limine\r\n");
 

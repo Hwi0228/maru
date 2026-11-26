@@ -10,17 +10,33 @@ header="$(readelf -h "$kernel_path")"
 program_headers="$(readelf -l "$kernel_path")"
 symbols="$(nm "$kernel_path")"
 
-grep -q "Class:.*ELF64" <<<"$header"
-grep -q "Type:.*EXEC" <<<"$header"
-grep -q "LOAD" <<<"$program_headers"
-grep -Eq '[[:space:]]kmain$' <<<"$symbols"
+require() {
+  local pattern="$1"
+  local content="$2"
+  local description="$3"
+  if ! grep -Eq "$pattern" <<<"$content"; then
+    echo "ELF contract failed: $description" >&2
+    echo "--- ELF header ---" >&2
+    printf '%s\n' "$header" >&2
+    echo "--- Program headers ---" >&2
+    printf '%s\n' "$program_headers" >&2
+    echo "--- Symbols ---" >&2
+    printf '%s\n' "$symbols" >&2
+    exit 1
+  fi
+}
+
+require 'Class:[[:space:]]+ELF64' "$header" "expected ELF64"
+require 'Type:[[:space:]]+EXEC' "$header" "expected an executable ELF"
+require '[[:space:]]LOAD[[:space:]]' "$program_headers" "expected loadable segments"
+require '[[:space:]]kmain$' "$symbols" "expected exported kmain entry point"
 
 case "$architecture" in
   x86_64)
-    grep -q "Machine:.*Advanced Micro Devices X86-64" <<<"$header"
+    require 'Machine:[[:space:]]+Advanced Micro Devices X86-64' "$header" "expected x86_64 machine type"
     ;;
   aarch64)
-    grep -q "Machine:.*AArch64" <<<"$header"
+    require 'Machine:[[:space:]]+AArch64' "$header" "expected AArch64 machine type"
     ;;
   *)
     echo "Unsupported architecture: $architecture" >&2

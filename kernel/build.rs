@@ -1,8 +1,8 @@
 fn main() {
-    let arch = std::env::var("CARGO_CFG_TARGET_ARCH")
-        .expect("Cargo must provide CARGO_CFG_TARGET_ARCH");
-    let target_os = std::env::var("CARGO_CFG_TARGET_OS")
-        .expect("Cargo must provide CARGO_CFG_TARGET_OS");
+    let arch =
+        std::env::var("CARGO_CFG_TARGET_ARCH").expect("Cargo must provide CARGO_CFG_TARGET_ARCH");
+    let target_os =
+        std::env::var("CARGO_CFG_TARGET_OS").expect("Cargo must provide CARGO_CFG_TARGET_OS");
 
     match arch.as_str() {
         "x86_64" | "aarch64" => {}

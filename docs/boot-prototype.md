@@ -1,7 +1,8 @@
 # MARU Boot Prototype
 
 **Status:** Initial prototype  
-**Boot protocol:** Limine  
+**Boot protocol:** Limine 11.x  
+**Rust binding:** `limine` 0.6.5 (base revision 6)  
 **Kernel language:** Rust (`no_std`)  
 **Targets:** x86_64 and AArch64
 
@@ -11,11 +12,10 @@
 - Architecture-specific early console output:
   - x86_64: COM1 serial UART.
   - AArch64: PL011 UART on the QEMU `virt` platform, accessed through the Limine HHDM.
-- Architecture-specific Limine base revisions: revision 0 for the current x86_64 path and revision 6 for AArch64.
-- Limine HHDM request.
+- Limine base revision 6 and HHDM request using the matching Rust binding.
 - Architecture-specific linker scripts and static ELF output.
 - Cross-compilation CI for both target triples.
-- A basic Limine ISO build path.
+- QEMU boot smoke tests for both targets.
 
 The prototype prints a short boot banner and enters an architecture-specific idle loop.
 
@@ -48,4 +48,4 @@ The AArch64 image is intended for QEMU's `virt` machine and its PL011 UART. Phys
 
 ## Current limitations
 
-This is a boot-and-console prototype, not yet a functioning microkernel. It does not implement user mode, address-space management, scheduling, IPC, capabilities, a filesystem, or POSIX services. The AArch64 PL011 mapping and both runtime boot paths still require QEMU validation.
+This is a boot-and-console prototype, not yet a functioning microkernel. It does not implement user mode, address-space management, scheduling, IPC, capabilities, a filesystem, or POSIX services. QEMU smoke tests validate only the early boot contract, not physical hardware compatibility or long-term runtime stability.

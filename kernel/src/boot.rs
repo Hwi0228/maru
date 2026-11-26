@@ -1,6 +1,6 @@
 use limine::{
-    BaseRevision,
-    request::{HhdmRequest, RequestsEndMarker, RequestsStartMarker},
+    BaseRevision, RequestsEndMarker, RequestsStartMarker,
+    request::HhdmRequest,
 };
 
 #[used]

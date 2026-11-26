@@ -4,7 +4,8 @@ set -euo pipefail
 architecture="${1:?usage: test-qemu-boot.sh <x86_64|aarch64>}"
 log_file="$(mktemp)"
 clean_log_file="$(mktemp)"
-trap 'rm -f "$log_file" "$clean_log_file"' EXIT
+debug_file="$(mktemp)"
+trap 'rm -f "$log_file" "$clean_log_file" "$debug_file"' EXIT
 
 case "$architecture" in
   x86_64)
@@ -39,6 +40,8 @@ case "$architecture" in
       -serial stdio
       -monitor none
       -no-reboot
+      -d guest_errors,unimp,int
+      -D "$debug_file"
     )
     expected_arch="Architecture: AArch64"
     ;;
@@ -62,9 +65,15 @@ set -e
 sed -E 's/\x1B\[[0-9;?]*[ -/]*[@-~]//g' "$log_file" >"$clean_log_file"
 cat "$clean_log_file"
 
-grep -Fq "YEOUL OS / MARU Kernel" "$clean_log_file"
-grep -Fq "Boot protocol: Limine" "$clean_log_file"
-grep -Fq "$expected_arch" "$clean_log_file"
-grep -Fq "Kernel initialization complete." "$clean_log_file"
+for marker in   "YEOUL OS / MARU Kernel"   "Boot protocol: Limine"   "$expected_arch"   "Kernel initialization complete."; do
+  if ! grep -Fq "$marker" "$clean_log_file"; then
+    echo "QEMU boot contract failed: missing marker: $marker" >&2
+    if [[ "$architecture" == "aarch64" && -s "$debug_file" ]]; then
+      echo "--- QEMU AArch64 debug tail ---" >&2
+      tail -n 120 "$debug_file" >&2
+    fi
+    exit 1
+  fi
+done
 
 echo "QEMU boot contract passed: $architecture (QEMU exit: $qemu_status)"

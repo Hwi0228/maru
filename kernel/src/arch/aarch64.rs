@@ -1,3 +1,5 @@
+core::arch::global_asm!(include_str!("aarch64/entry.S"));
+
 use core::ptr::{read_volatile, write_volatile};
 
 // QEMU virt exposes its PL011 UART at this physical address.

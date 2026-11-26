@@ -13,7 +13,7 @@
   - x86_64: COM1 serial UART.
   - AArch64: PL011 UART on the QEMU `virt` platform, accessed through the Limine HHDM.
 - Limine base revision 6 and HHDM request using the matching Rust binding.
-- AArch64 early boot compiled without FP/SIMD instructions; MARU must explicitly enable those execution units before using them.
+- A small AArch64 assembly entry stub that enables FP/SIMD before branching into Rust. This is required because Limine base revision 6 leaves those execution units disabled at handoff.
 - Architecture-specific linker scripts and static ELF output.
 - Cross-compilation CI for both target triples.
 - QEMU boot smoke tests for both targets.

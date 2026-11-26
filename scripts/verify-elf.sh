@@ -29,14 +29,16 @@ require() {
 require 'Class:[[:space:]]+ELF64' "$header" "expected ELF64"
 require 'Type:[[:space:]]+EXEC' "$header" "expected an executable ELF"
 require '[[:space:]]LOAD[[:space:]]' "$program_headers" "expected loadable segments"
-require '[[:space:]]kmain$' "$symbols" "expected exported kmain entry point"
 
 case "$architecture" in
   x86_64)
     require 'Machine:[[:space:]]+Advanced Micro Devices X86-64' "$header" "expected x86_64 machine type"
+    require '[[:space:]]kmain$' "$symbols" "expected exported kmain entry point"
     ;;
   aarch64)
     require 'Machine:[[:space:]]+AArch64' "$header" "expected AArch64 machine type"
+    require '[[:space:]]_start$' "$symbols" "expected architecture startup entry point"
+    require '[[:space:]]kmain$' "$symbols" "expected Rust kernel entry point"
     ;;
   *)
     echo "Unsupported architecture: $architecture" >&2

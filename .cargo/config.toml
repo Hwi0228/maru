@@ -2,4 +2,11 @@
 rustflags = ["-C", "relocation-model=static", "-C", "link-arg=-no-pie"]
 
 [target.aarch64-unknown-none]
-rustflags = ["-C", "relocation-model=static", "-C", "link-arg=-no-pie"]
+# Limine base revision 6 enters AArch64 with FP/SIMD disabled. Keep early
+# kernel code within the baseline integer instruction set until MARU enables
+# those execution units explicitly.
+rustflags = [
+    "-C", "target-feature=-fp-armv8,-neon",
+    "-C", "relocation-model=static",
+    "-C", "link-arg=-no-pie",
+]

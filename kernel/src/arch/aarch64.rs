@@ -11,7 +11,9 @@ const UART_CR: u64 = 0x30;
 const UART_FR_TXFF: u32 = 1 << 5;
 
 fn uart_base(hhdm_offset: u64) -> *mut u32 {
-    (hhdm_offset + UART0_PHYS) as *mut u32
+    let address = crate::hhdm_address(hhdm_offset, UART0_PHYS)
+        .expect("PL011 virtual address is outside the supported address range");
+    address as *mut u32
 }
 
 pub fn init(hhdm_offset: u64) {

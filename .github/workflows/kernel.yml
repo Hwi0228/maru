@@ -1,4 +1,4 @@
-name: MARU kernel
+name: MARU verification
 
 on:
   push:
@@ -6,7 +6,25 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
+  host-tests:
+    name: Host tests and formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+      - name: Check formatting
+        run: cargo fmt --manifest-path kernel/Cargo.toml --all -- --check
+      - name: Run architecture-independent unit tests
+        run: cargo test --manifest-path kernel/Cargo.toml --lib
+      - name: Lint shared kernel code
+        run: cargo clippy --manifest-path kernel/Cargo.toml --lib -- -D warnings
+
   cross-build:
     name: Build ${{ matrix.arch }}
     runs-on: ubuntu-latest
@@ -22,3 +40,27 @@ jobs:
       - name: Build kernel
         working-directory: kernel
         run: cargo build --release --target ${{ matrix.arch }}-unknown-none
+      - name: Verify kernel ELF contract
+        run: scripts/verify-elf.sh kernel/target/${{ matrix.arch }}-unknown-none/release/maru-kernel ${{ matrix.arch }}
+
+  qemu-boot:
+    name: QEMU boot — ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    needs: cross-build
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install boot and emulator dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make nasm xorriso qemu-system-x86 qemu-system-arm qemu-efi-aarch64
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: ${{ matrix.arch }}-unknown-none
+      - name: Build bootable image
+        run: make iso KARCH=${{ matrix.arch }}
+      - name: Verify QEMU boot contract
+        run: scripts/test-qemu-boot.sh ${{ matrix.arch }}

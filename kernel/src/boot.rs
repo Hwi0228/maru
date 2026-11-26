@@ -1,7 +1,4 @@
-use limine::{
-    BaseRevision, RequestsEndMarker, RequestsStartMarker,
-    request::HhdmRequest,
-};
+use limine::{BaseRevision, RequestsEndMarker, RequestsStartMarker, request::HhdmRequest};
 
 #[used]
 #[unsafe(link_section = ".requests_start_marker")]

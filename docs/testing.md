@@ -16,7 +16,9 @@ cargo test --manifest-path kernel/Cargo.toml --lib
 
 ### 2. Cross-architecture build and ELF contract
 
-Both `x86_64-unknown-none` and `aarch64-unknown-none` must compile. The ELF verifier checks that each output is ELF64, has the expected machine type, contains loadable segments, and exports the kernel entry point.
+Both `x86_64-unknown-none` and `aarch64-unknown-none` must compile. Both targets use static relocation so the kernel is emitted as a fixed-address executable rather than a dynamically linked userspace-style image.
+
+The ELF verifier checks ELF64 class, executable type, expected machine type, loadable segments, and the exported kernel entry point.
 
 ### 3. QEMU boot contract
 
